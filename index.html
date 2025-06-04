@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz on Clean Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        header {
+            background: #50b3a2;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #e8491d 3px solid;
+        }
+        .main {
+            padding: 20px;
+            background: #fff;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .question {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+        .options li {
+            margin-bottom: 10px;
+        }
+        .options input {
+            margin-right: 10px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #50b3a2;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background: #e8491d;
+        }
+        .result {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Quiz on Clean Code</h1>
+        </div>
+    </header>
+    <div class="container main">
+        <div id="quiz-container">
+            <div id="question-container"></div>
+            <button id="next-button" class="button">Next</button>
+            <button id="submit-button" class="button" style="display:none;">Submit</button>
+        </div>
+        <div id="result-container" style="display:none;">
+            <div id="result"></div>
+            <button id="retake-button" class="button">Retake Quiz</button>
+        </div>
+    </div>
+    <script>
+        const questions = [{'question': 'Which of the following is the best variable name to store the current balance in a savings account?', 'options': ['x', 'bal', 'savingsBalance', 'sb'], 'answer': 2, 'difficulty': 'Easy', 'chapter': 'Chapter 2: Meaningful Names'}, {'question': "What is the 'Boy Scout Rule' in software development?", 'options': ['Leave a comment for every method', 'Avoid writing tests', 'Leave the code cleaner than you found it', 'Delete unused code aggressively'], 'answer': 2, 'difficulty': 'Easy', 'chapter': 'Chapter 1: Clean Code'}, {'question': 'Which comment type is considered harmful?', 'options': ['// Converts legacy balance', '// FIXME: Handle overdraft', '// This is a function', '// Enforces KYC compliance'], 'answer': 2, 'difficulty': 'Easy', 'chapter': 'Chapter 4: Comments'}, {'question': 'Which principle emphasizes keeping data and behavior separate when necessary?', 'options': ['DRY', 'Data/Object Anti-Symmetry', 'Dependency Injection', 'Liskov Principle'], 'answer': 1, 'difficulty': 'Easy', 'chapter': 'Chapter 6: Objects and Data Structures'}, {'question': 'Why should exceptions be preferred over returning error codes?', 'options': ['They use fewer lines of code', 'They are always faster', 'They separate error logic from main logic', 'They’re required in banking software'], 'answer': 2, 'difficulty': 'Easy', 'chapter': 'Chapter 7: Error Handling'}, {'question': "Pseudocode:\n\nfunction approveLoan(customer):\n    if customer.hasGoodCredit and customer.salary > 50000:\n        return 'Approved'\n    if customer.hasCollateral:\n        return 'Conditionally Approved'\n    return 'Rejected'\n\nWhich Clean Code principle is violated?", 'options': ['Functions must always be public', 'Function should do one thing', 'Function arguments are too long', 'Function lacks a return statement'], 'answer': 1, 'difficulty': 'Moderate', 'chapter': 'Chapter 3: Functions'}, {'question': 'How should vertical formatting be applied in long transaction-processing methods?', 'options': ['Add empty lines between logical blocks', 'Combine all logic into a single block', 'Use excessive inline comments', 'Align all variables left in the same column'], 'answer': 0, 'difficulty': 'Moderate', 'chapter': 'Chapter 5: Formatting'}, {'question': 'What principle is violated by a TransactionManager class that logs, validates, and renders UI?', 'options': ['Law of Demeter', 'Single Responsibility Principle', 'KISS', 'Encapsulation'], 'answer': 1, 'difficulty': 'Moderate', 'chapter': 'Chapter 10: Classes'}, {'question': 'Which is an example of duplication?', 'options': ['Abstracting interfaces', 'Rewriting KYC logic in multiple services', 'Using constants across files', 'Using a shared validation class'], 'answer': 1, 'difficulty': 'Moderate', 'chapter': 'Chapter 12: Emergence'}, {'question': 'Which is the best practice for writing clean unit tests?', 'options': ['Use one test with multiple asserts', 'One concept per test', 'Use print statements to debug', 'Skip trivial cases'], 'answer': 1, 'difficulty': 'Moderate', 'chapter': 'Chapter 9: Unit Tests'}, {'question': 'In banking microservices, what does separation of construction and usage mean?', 'options': ['Use switch-case blocks for everything', 'Apply dependency injection', 'Avoid modularization', 'Always construct objects manually'], 'answer': 1, 'difficulty': 'Moderate', 'chapter': 'Chapter 11: Systems'}, {'question': 'How should you safely use a third-party fraud detection library?', 'options': ['Copy it to your codebase', 'Extend its core classes', 'Wrap it with an adapter or interface', 'Use reflection to access internals'], 'answer': 2, 'difficulty': 'Moderate', 'chapter': 'Chapter 8: Boundaries'}, {'question': 'What’s a good first step in refactoring a bloated calculateEMI() method?', 'options': ['Merge it with other financial methods', 'Add logging to every line', 'Split into smaller helper methods', 'Convert it to a static utility method'], 'answer': 2, 'difficulty': 'Moderate', 'chapter': 'Chapter 14: Successive Refinement'}, {'question': 'What is the first principle when approaching messy legacy code?', 'options': ['Delete and start over', 'Make it work, then refactor', 'Move it to another package', 'Add comments to clarify it'], 'answer': 1, 'difficulty': 'Moderate', 'chapter': 'Chapter 16: Refactoring SerialDate'}, {'question': 'Which clean code issue is most critical in the following pseudocode?\n\nfunction transferFunds(accountA, accountB, amount):\n    lock(accountA)\n    try:\n        lock(accountB)\n        try:\n            if accountA.balance >= amount:\n                accountA.balance -= amount\n                accountB.balance += amount\n        finally:\n            unlock(accountB)\n    finally:\n        unlock(accountA)', 'options': ['The function lacks logging for audit trails', 'Locking order may cause a deadlock in concurrent transfers', 'The function should use recursion instead of nested locks', 'The balance check should be moved outside the lock block'], 'answer': 1, 'difficulty': 'Hard', 'chapter': 'Chapter 13: Concurrency'}, {'question': "Which smells are present?\n\nfunction validateCustomer():\n    if user.type == 'Gold' or user.points > 1000:\n        if user.region == 'Asia':\n            giveCashback()\n    else:\n        denyOffer()", 'options': ['Nested conditionals, unclear intent, magic values', 'No indentation', 'Too many imports', 'Missing try/catch'], 'answer': 0, 'difficulty': 'Hard', 'chapter': 'Chapter 17: Smells and Heuristics'}, {'question': 'What practice ensures thread-safe logging in ATM withdrawal systems?', 'options': ['Add sleep(1) to synchronize', 'Use synchronized queues and write batching', 'Use static variables everywhere', 'Avoid logging from background threads'], 'answer': 1, 'difficulty': 'Hard', 'chapter': 'Chapter 13 & Appendix A'}, {'question': 'How does inversion of control help in testing?', 'options': ['It removes need for test cases', 'It auto-generates mocks', 'It separates test setup from logic', 'It tests UI workflows'], 'answer': 2, 'difficulty': 'Hard', 'chapter': 'Chapter 15: JUnit Internals'}, {'question': 'A class with 12 methods and 3 responsibilities should be:', 'options': ['Annotated as @MultiPurpose', 'Split into 3 specialized classes', 'Refactored using comments', 'Exposed via a global variable'], 'answer': 1, 'difficulty': 'Hard', 'chapter': 'Chapter 10: Classes'}, {'question': 'Refactor this code:\n\nfunction doThing(a, b):\n    if a > b:\n        return a - b\n    return b - a', 'options': ['getGap(a, b)', 'calculateTransactionDifference(amount1, amount2)', 'diff(x, y)', 'compareAmt()'], 'answer': 1, 'difficulty': 'Hard', 'chapter': 'Chapter 17: Naming'}];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedAnswers = [];
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function showQuestion() {
+            const questionContainer = document.getElementById('question-container');
+            const question = questions[currentQuestionIndex];
+            questionContainer.innerHTML = `
+                <div class="question">${currentQuestionIndex + 1}. ${question.question}</div>
+                <ul class="options">
+                    ${question.options.map((option, index) => `
+                        <li>
+                            <input type="radio" name="option" value="${index}" id="option${index}">
+                            <label for="option${index}">${option}</label>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        function showNextQuestion() {
+            const selectedOption = document.querySelector('input[name="option"]:checked');
+            if (selectedOption) {
+                selectedAnswers[currentQuestionIndex] = parseInt(selectedOption.value);
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    showQuestion();
+                    if (currentQuestionIndex === questions.length - 1) {
+                        document.getElementById('next-button').style.display = 'none';
+                        document.getElementById('submit-button').style.display = 'inline-block';
+                    }
+                }
+            } else {
+                alert('Please select an option.');
+            }
+        }
+
+        function calculateScore() {
+            score = selectedAnswers.reduce((acc, answer, index) => {
+                return acc + (answer === questions[index].answer ? 1 : 0);
+            }, 0);
+            return (score / questions.length) * 100;
+        }
+
+        function showResult() {
+            const resultContainer = document.getElementById('result-container');
+            const quizContainer = document.getElementById('quiz-container');
+            const result = document.getElementById('result');
+            const scorePercentage = calculateScore();
+            quizContainer.style.display = 'none';
+            resultContainer.style.display = 'block';
+            if (scorePercentage >= 70) {
+                result.innerHTML = `Congratulations! You passed the quiz with a score of ${scorePercentage}%.`;
+                document.getElementById('retake-button').style.display = 'none';
+            } else {
+                result.innerHTML = `You scored ${scorePercentage}%. Please retake the quiz.`;
+                document.getElementById('retake-button').style.display = 'inline-block';
+            }
+        }
+
+        function retakeQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswers = [];
+            shuffle(questions);
+            showQuestion();
+            document.getElementById('quiz-container').style.display = 'block';
+            document.getElementById('result-container').style.display = 'none';
+            document.getElementById('next-button').style.display = 'inline-block';
+            document.getElementById('submit-button').style.display = 'none';
+        }
+
+        document.getElementById('next-button').addEventListener('click', showNextQuestion);
+        document.getElementById('submit-button').addEventListener('click', showResult);
+        document.getElementById('retake-button').addEventListener('click', retakeQuiz);
+
+        shuffle(questions);
+        showQuestion();
+    </script>
+</body>
+</html>
